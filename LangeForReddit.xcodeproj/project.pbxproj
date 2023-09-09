@@ -14,6 +14,7 @@
 		916BC8512A9E23F60055FEF2 /* LangeForRedditTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916BC8502A9E23F60055FEF2 /* LangeForRedditTests.swift */; };
 		916BC85B2A9E23F60055FEF2 /* LangeForRedditUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916BC85A2A9E23F60055FEF2 /* LangeForRedditUITests.swift */; };
 		916BC85D2A9E23F60055FEF2 /* LangeForRedditUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916BC85C2A9E23F60055FEF2 /* LangeForRedditUITestsLaunchTests.swift */; };
+		916BC86A2AA3F6E20055FEF2 /* RedditAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916BC8692AA3F6E20055FEF2 /* RedditAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		916BC8562A9E23F60055FEF2 /* LangeForRedditUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LangeForRedditUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		916BC85A2A9E23F60055FEF2 /* LangeForRedditUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangeForRedditUITests.swift; sourceTree = "<group>"; };
 		916BC85C2A9E23F60055FEF2 /* LangeForRedditUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangeForRedditUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		916BC8692AA3F6E20055FEF2 /* RedditAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedditAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 			children = (
 				916BC83F2A9E23F50055FEF2 /* LangeForRedditApp.swift */,
 				916BC8412A9E23F50055FEF2 /* ContentView.swift */,
+				916BC8692AA3F6E20055FEF2 /* RedditAPI.swift */,
 				916BC8432A9E23F60055FEF2 /* Assets.xcassets */,
 				916BC8452A9E23F60055FEF2 /* Preview Content */,
 			);
@@ -259,6 +262,7 @@
 			files = (
 				916BC8422A9E23F50055FEF2 /* ContentView.swift in Sources */,
 				916BC8402A9E23F50055FEF2 /* LangeForRedditApp.swift in Sources */,
+				916BC86A2AA3F6E20055FEF2 /* RedditAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
