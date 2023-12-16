@@ -7,8 +7,6 @@
         <dict>
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
-            <key>CFBundleURLName</key>
-            <string>com.Stevereitz.LangeForReddit</string>
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>langeforreddit</string>
