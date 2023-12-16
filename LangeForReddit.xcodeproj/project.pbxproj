@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		910A2EAA2B2B5368006585E2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910A2EA92B2B5368006585E2 /* AppDelegate.swift */; };
+		910A2EAE2B2B6099006585E2 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 910A2EAD2B2B6099006585E2 /* KeychainAccess */; };
 		916BC8402A9E23F50055FEF2 /* LangeForRedditApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916BC83F2A9E23F50055FEF2 /* LangeForRedditApp.swift */; };
 		916BC8422A9E23F50055FEF2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916BC8412A9E23F50055FEF2 /* ContentView.swift */; };
 		916BC8442A9E23F60055FEF2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 916BC8432A9E23F60055FEF2 /* Assets.xcassets */; };
@@ -35,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		910A2EA92B2B5368006585E2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		910A2EAB2B2B5927006585E2 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; name = Info.plist; path = "/Users/stephenreitz/Desktop/Swift-2048-test/LangeForReddit/LangeForReddit/Info.plist"; sourceTree = "<absolute>"; };
 		916BC83C2A9E23F50055FEF2 /* LangeForReddit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LangeForReddit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		916BC83F2A9E23F50055FEF2 /* LangeForRedditApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangeForRedditApp.swift; sourceTree = "<group>"; };
 		916BC8412A9E23F50055FEF2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				910A2EAE2B2B6099006585E2 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,9 +101,11 @@
 		916BC83E2A9E23F50055FEF2 /* LangeForReddit */ = {
 			isa = PBXGroup;
 			children = (
+				910A2EAB2B2B5927006585E2 /* Info.plist */,
 				916BC83F2A9E23F50055FEF2 /* LangeForRedditApp.swift */,
 				916BC8412A9E23F50055FEF2 /* ContentView.swift */,
 				916BC8692AA3F6E20055FEF2 /* RedditAPI.swift */,
+				910A2EA92B2B5368006585E2 /* AppDelegate.swift */,
 				916BC8432A9E23F60055FEF2 /* Assets.xcassets */,
 				916BC8452A9E23F60055FEF2 /* Preview Content */,
 			);
@@ -146,6 +153,9 @@
 			dependencies = (
 			);
 			name = LangeForReddit;
+			packageProductDependencies = (
+				910A2EAD2B2B6099006585E2 /* KeychainAccess */,
+			);
 			productName = LangeForReddit;
 			productReference = 916BC83C2A9E23F50055FEF2 /* LangeForReddit.app */;
 			productType = "com.apple.product-type.application";
@@ -194,7 +204,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					916BC83B2A9E23F50055FEF2 = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -218,6 +228,9 @@
 				Base,
 			);
 			mainGroup = 916BC8332A9E23F50055FEF2;
+			packageReferences = (
+				910A2EAC2B2B6099006585E2 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			productRefGroup = 916BC83D2A9E23F50055FEF2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -260,6 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				910A2EAA2B2B5368006585E2 /* AppDelegate.swift in Sources */,
 				916BC8422A9E23F50055FEF2 /* ContentView.swift in Sources */,
 				916BC8402A9E23F50055FEF2 /* LangeForRedditApp.swift in Sources */,
 				916BC86A2AA3F6E20055FEF2 /* RedditAPI.swift in Sources */,
@@ -303,6 +317,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -335,6 +350,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -363,6 +379,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -395,6 +412,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -424,6 +442,7 @@
 				DEVELOPMENT_TEAM = J4QUKKF6V3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LangeForReddit/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -453,6 +472,7 @@
 				DEVELOPMENT_TEAM = J4QUKKF6V3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LangeForReddit/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -587,6 +607,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		910A2EAC2B2B6099006585E2 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		910A2EAD2B2B6099006585E2 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 910A2EAC2B2B6099006585E2 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 916BC8342A9E23F50055FEF2 /* Project object */;
 }
