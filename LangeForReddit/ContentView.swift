@@ -2,87 +2,89 @@ import SwiftUI
 
 struct ContentView: View {
     @State var modItems: [ModQueueResponse.Data.Children.Data] = []
-    @State var subreddit: String = "PoliticalDiscussion"
+    @State var subreddit: String = "Mod"
     @State var selectedReason: String?
+    @State private var modMailConversations: [ModMailConversationDetail] = []
 //    @State var accessToken: String?
 
     var body: some View {
-        Button("Login with Reddit") {
-            startRedditOAuthFlow()
-        }
-        Button("Test Open URL") {
-            let testURL = URL(string: "langeforreddit://authorize_callback?code=test")!
-            UIApplication.shared.open(testURL)
-        }
-        .padding()
-        TabView{
-            NavigationView {
-                VStack {
-                    TextField("Enter subreddit", text: $subreddit)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                    
-                    Button("Load Mod Queue") {
-                        print("STR: accessToken at get ModQueue is \(String(describing: RedditAPI.shared.accessToken))")
-                        if !subreddit.isEmpty {
-                            RedditAPI.shared.getModQueue(subreddit: subreddit) { items in
-                                self.modItems = items
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                    
-                    List(modItems, id: \.self) { item in
-                        HStack {
-                            Text(item.title ?? "something")
-                            Spacer()
-                            Button("Approve") {
-                                print("Approve button pressed")
-                                RedditAPI.shared.performModAction(subreddit: subreddit, action: "approve", id: item.id, reason: nil) { success in
-                                    if success {
-                                        print("Approved")
-                                    }
-                                }
-                            }
-                            .foregroundColor(.green)
-                            
-                            Button("Remove") {
-                                print("Remove Button pressed")
-                                RedditAPI.shared.getRemovalReasons(subreddit: subreddit) { reasons in
-                                    // For this example, we just select the first reason.
-                                    // In a real app, you would present these to the user for selection.
-                                    if let reason = reasons.first {
-                                        RedditAPI.shared.performModAction(subreddit: subreddit, action: "remove", id: item.id, reason: reason) { success in
-                                            if success {
-                                                print("Removed with reason: \(reason)")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            .foregroundColor(.red)
-                        }
-                    }
-                }
-                .onAppear() {
-                    print("STR:at at OnAppear is \(String(describing: RedditAPI.shared.accessToken))")
-                }
-                .navigationTitle("Reddit Mod Queue")
-            } // end of NavView
-            .tabItem {
-                Label("Mod Queue", systemImage: "list.dash")
+//        if (RedditAPI.shared.accessToken == nil) {
+            Button("Login with Reddit") {
+                startRedditOAuthFlow()
             }
-            ModMailView()
+//        } else{
+        VStack{
+            TextField("Enter subreddit", text: $subreddit, onCommit: {
+                // Trigger loading of Mod Queue and Mod Mail
+                loadModQueue()
+                loadModMail()
+            })
+            .textFieldStyle(RoundedBorderTextFieldStyle())
+            .padding()
+            TabView{
+                NavigationView {
+                    VStack {
+                        List(modItems, id: \.id) { item in
+                            Text(item.title ?? "No title")
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        approveItem(item)
+                                    } label: {
+                                        Label("Approve", systemImage: "checkmark.circle")
+                                    }
+                                    .tint(.green)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        deleteItem(item)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash.circle")
+                                    }
+                                }
+                        }
+//                        ForEach(modItems, id: \.self) { item in
+//                            HStack {
+//                                Text(item.title ?? "something")
+//                                Spacer()
+//                                Button("Approve") {
+//                                    print("Approve button pressed")
+//                                    RedditAPI.shared.performModAction(subreddit: subreddit, action: "approve", id: item.name, reason: nil) { success in
+//                                        if success {
+//                                            print("Approved item with ID: \(item.name)")
+//                                        }
+//                                    }
+//                                }
+//                                .foregroundColor(.green)
+//                                .buttonStyle(PlainButtonStyle())
+//                                .padding(.horizontal) // Add some padding
+//                                Button("Remove") {
+//                                    print("Remove Button pressed")
+//                                    RedditAPI.shared.performModAction(subreddit: subreddit, action: "remove", id: item.name, reason: nil) { success in
+//                                        if success {
+//                                            print("Removed item with ID: \(item.name)")
+//                                        }
+//                                    } // TODO: add removal reasons (aka rules, I guess??)
+//                                }
+//                                .foregroundColor(.red)
+//                                .buttonStyle(PlainButtonStyle())
+//                                .padding(.horizontal)
+//                            }
+//                        }
+                    }
+//                    .navigationTitle("Reddit Mod Queue")
+                } // end of NavView
                 .tabItem {
-                    Label("Mod Mail", systemImage: "envelope")
+                    Label("Mod Queue", systemImage: "list.dash")
                 }
+                ModMailView(modMailConversations: $modMailConversations)
+                    .tabItem {
+                        Label("Mod Mail", systemImage: "envelope")
+                    }
+            }
+            .onOpenURL(perform: { url in
+                handleURL(url)
+            })
         }
-        .onOpenURL(perform: { url in
-            handleURL(url)
-        })
     }
     func startRedditOAuthFlow() {
         let redditAuthURL = "https://www.reddit.com/api/v1/authorize"
@@ -90,7 +92,7 @@ struct ContentView: View {
         let redirectUri = "http://localhost:8000/redirect"
         let responseType = "code"
         let state = "RANDOM_STATE_STRING"
-        let scope = "read"
+        let scope = "read,modposts,modmail"
 
         let urlString = "\(redditAuthURL)?client_id=\(clientId)&response_type=\(responseType)&state=\(state)&redirect_uri=\(redirectUri)&duration=permanent&scope=\(scope)"
         if let url = URL(string: urlString) {
@@ -112,6 +114,7 @@ struct ContentView: View {
         exchangeCodeForToken(code)
         // Proceed with your OAuth token exchange process
     }
+    
     func exchangeCodeForToken(_ code: String) {
        print("in exchangeCodeForToken")
        // The URL for the Reddit token exchange endpoint
@@ -169,10 +172,55 @@ struct ContentView: View {
        }
        task.resume()
    }
-}
-struct ModMailView: View {
-    // Your ModMail logic can go here
-    var body: some View {
-        Text("ModMail Content")
+    private func loadModQueue(){
+        print("STR: accessToken at get ModQueue is \(String(describing: RedditAPI.shared.accessToken))")
+        if !subreddit.isEmpty {
+            RedditAPI.shared.getModQueue(subreddit: subreddit) { items in
+                self.modItems = items
+            }
+        }
+    }
+    private func loadModMail() {
+        RedditAPI.shared.fetchModMailConversations(subreddit: subreddit) { conversations in
+            if let conversations = conversations {
+                DispatchQueue.main.async {
+                    self.modMailConversations = conversations
+                }
+            } else {
+                // Handle the error or empty state
+            }
+        }
+    }
+    private func approveItem(_ item: ModQueueResponse.Data.Children.Data) {
+        print("Approve button pressed")
+        RedditAPI.shared.performModAction(subreddit: subreddit, action: "approve", id: item.name, reason: nil) { success in
+            if success {
+                print("Approved item with ID: \(item.name)")
+            }
+        }
+    }
+    private func deleteItem(_ item: ModQueueResponse.Data.Children.Data){
+        print("Remove Button pressed")
+        RedditAPI.shared.performModAction(subreddit: subreddit, action: "remove", id: item.name, reason: nil) { success in
+            if success {
+                print("Removed item with ID: \(item.name)")
+            }
+        } // TODO: add removal reasons (aka rules, I guess??)
     }
 }
+struct ModMailView: View {
+    @Binding var modMailConversations: [ModMailConversationDetail]
+
+    var body: some View {
+        List(modMailConversations, id: \.id) { conversation in
+            VStack(alignment: .leading) {
+                Text(conversation.subject).font(.headline)
+                Text("Last update: \(conversation.lastUserUpdate)").font(.subheadline)
+                // Display other fields as needed
+            }
+        }
+    }
+}
+
+
+

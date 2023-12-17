@@ -7,6 +7,7 @@ struct ModQueueResponse:  Codable {
             struct Data: Codable, Hashable {
                 let id: String
                 let title: String?
+                let name: String
             }
             let data: Data
         }
@@ -14,6 +15,50 @@ struct ModQueueResponse:  Codable {
     }
     let data: Data
 }
+
+struct ModMailConversationDetail: Codable, Hashable {
+    let isAuto: Bool
+    let participant: Participant
+    let objIds: [ObjId]
+    let isRepliable: Bool
+    let lastUserUpdate: String
+    let isInternal: Bool
+    let lastModUpdate: String?
+    let authors: [Participant]
+    let lastUpdated: String
+    let participantSubreddit: [String: String?]
+    let legacyFirstMessageId: String
+    let state: Int
+    let conversationType: String
+    let lastUnread: String?
+    let owner: Owner
+    let subject: String
+    let id: String
+    let isHighlighted: Bool
+    let numMessages: Int
+    // Add other fields as necessary
+}
+
+struct Participant: Codable, Hashable {
+    let name: String
+    let isMod: Bool
+}
+
+struct ObjId: Codable, Hashable {
+    let id: String
+    let key: String
+}
+
+struct Owner: Codable, Hashable {
+    let displayName: String
+    let type: String
+    let id: String
+}
+
+struct ModMailConversationsResponse: Codable {
+    let conversations: [String: ModMailConversationDetail]
+}
+
 
 
 class RedditAPI {
@@ -56,10 +101,6 @@ class RedditAPI {
             return
         }
         
-//        guard let accessToken = self.accessToken, let url = URL(string: "https://oauth.reddit.com/r/\(subreddit)/about/modqueue") else {
-//            print("Invalid URL or Access Token")
-//            return
-//        }
         
         var request = URLRequest(url: url)
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
@@ -102,30 +143,83 @@ class RedditAPI {
     func getRemovalReasons(subreddit: String, completion: @escaping ([String]) -> ()) {
         let url = URL(string: "https://oauth.reddit.com/r/\(subreddit)/api/v1/removal_reasons")!
         var request = URLRequest(url: url)
-        request.addValue("Bearer \(String(describing: accessToken))", forHTTPHeaderField: "Authorization")
-
-        // Make the API call here
-        // For simplicity, assuming the removal reasons are just strings
-        completion(["Reason 1", "Reason 2"])
+        request.addValue("Bearer \(accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error getting removal reasons: \(error)")
+                completion([])
+                return
+            }
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+               let data = data {
+                // Parse the JSON and extract the reasons
+                // For now, let's just print the data
+                print(String(data: data, encoding: .utf8) ?? "Invalid response data")
+                // Call the completion handler with the parsed reasons
+                // Assuming the reasons are in the JSON under a key called "reasons"
+            } else {
+                print("Failed to get removal reasons, received HTTP response: \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+                completion([])
+            }
+        }
+        task.resume()
     }
+
 
     func performModAction(subreddit: String, action: String, id: String, reason: String?, completion: @escaping (Bool) -> ()) {
-        let url = URL(string: "https://oauth.reddit.com/r/\(subreddit)/api/\(action)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(String(describing: accessToken))", forHTTPHeaderField: "Authorization")
-        
-        var bodyData = "id=\(id)"
-        if let reason = reason {
-            bodyData += "&reason=\(reason)"
-        }
-        
-        request.httpBody = bodyData.data(using: .utf8)
 
-        // Make the API call here
-        // For simplicity, assuming success for now
-        completion(true)
+
+
+            guard let url = URL(string: "https://oauth.reddit.com/r/\(subreddit)/api/\(action)") else {
+                completion(false)
+                return
+            }
+
+            // Setting up the request
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.addValue("ChangeMeClient/0.1 by ssk42", forHTTPHeaderField: "User-Agent")
+            request.addValue("Bearer \(self.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+            request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+
+            // Constructing the body
+            var parameters = "id=\(id)"
+            if let reason = reason {
+                parameters += "&reason=\(reason)"
+            }
+            parameters += "&uh=" // Including the `uh` parameter as empty
+            let postData = parameters.data(using: .utf8)
+            request.httpBody = postData
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                    completion(false)
+                    return
+                }
+
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("HTTP Response Code: \(httpResponse.statusCode)")
+
+                    if let responseString = String(data: data!, encoding: .utf8) {
+                        print("Response String: \(responseString)")
+                    }
+
+                    if httpResponse.statusCode == 200 {
+                        completion(true)
+                    } else {
+                        // Check the response body for error details
+                        if let data = data, let json = try? JSONSerialization.jsonObject(with: data, options: []) {
+                            print("Response JSON: \(json)")
+                        }
+                        completion(false)
+                    }
+                }
+            }
+            task.resume()
+        
     }
+
     
     // Method to refresh the access token using the refresh token
     func refreshTokenIfNeeded(completion: @escaping (Bool) -> Void) {
@@ -192,6 +286,75 @@ class RedditAPI {
              keychain["refreshToken"] = refreshToken
          }
     }
+    
+    func fetchModhashFromListing(completion: @escaping (String?) -> Void) {
+        // Example endpoint: user's comments. You can change this as needed.
+        guard let url = URL(string: "https://oauth.reddit.com/user/ssk42/comments") else {
+            completion(nil)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.addValue("Bearer \(accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error fetching listing: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+
+            if let data = data,
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let jsonData = json["data"] as? [String: Any],
+               let modhash = jsonData["modhash"] as? String {
+                completion(modhash)
+            } else {
+                print("Failed to fetch or parse modhash from listing.")
+                completion(nil)
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchModMailConversations(subreddit: String, limit: Int = 25, sort: String = "recent", completion: @escaping ([ModMailConversationDetail]?) -> Void) {
+        guard let url = URL(string: "https://oauth.reddit.com/api/mod/conversations?entity=\(subreddit)&limit=\(limit)&sort=\(sort)") else {
+            completion(nil)
+            return
+        }
+
+        var request = URLRequest(url: url, timeoutInterval: Double.infinity)
+        request.addValue("ChangeMeClient/0.1 by ssk42", forHTTPHeaderField: "User-Agent")
+        request.addValue("Bearer \(self.accessToken ?? "")", forHTTPHeaderField: "Authorization") // Replace with your actual token
+
+        request.httpMethod = "GET"
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else {
+                print("Error: \(String(describing: error))")
+                completion(nil)
+                return
+            }
+
+            do {
+                let response = try JSONDecoder().decode(ModMailConversationsResponse.self, from: data)
+                let conversations = Array(response.conversations.values)
+                completion(conversations)
+            } catch {
+                print("Error decoding modmail conversations data: \(error)")
+                completion(nil)
+            }
+        }
+
+        task.resume()
+    }
+
+
+
+
+
+
+
 }
 
 
